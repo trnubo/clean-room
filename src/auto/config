@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+LIVE_USER=pgp
+LIVE_LOCALE=en_US.UTF8
+
+LIVE_ARCH=i386
+LIVE_FLAVOUR=686-pae
+
+LIVE_ISO="PGP master LiveCD `date +%Y-%m-%d`"
+
+lb config noauto \
+  --architectures ${LIVE_ARCH} \
+  --linux-flavours ${LIVE_FLAVOUR} \
+  --mirror-bootstrap http://ftp.iinet.net.au/pub/debian/debian/ \
+  --mirror-binary http://ftp.iinet.net.au/pub/debian/debian/ \
+  --bootappend-live "boot=live components quiet username=${LIVE_USER} hostname=live consoleblank=0" \
+  --iso-volume "${LIVE_ISO}" \ 
+  "${@}"

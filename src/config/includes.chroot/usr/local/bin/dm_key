@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+set -e
+
+rm out-key-* 2>/dev/null || true
+
+KEYFILE="${1}"
+FINGERPRINT="${2}"
+FULL_SHA="$(sha256sum ${KEYFILE} | cut -d' ' -f1)"
+
+split -b 1500 ${KEYFILE} out-key-
+
+COUNT="$(echo out-key-* | wc -w)"
+I=0
+for K in out-key-*; do
+	I=$((I+1))
+	PART_SHA="$(sha256sum $K | cut -d' ' -f1)"
+	dmtxwrite -e 8 $K > $K.png
+	convert $K.png \
+		-gravity South -extent 740x900 \
+		-gravity North -pointsize 18 -font Courier-Bold \
+		-annotate +0+4  "Full sha256sum" \
+		-annotate +0+24 "${FULL_SHA}" \
+		-annotate +0+44 "Fingerprint ${FINGERPRINT}" \
+		-annotate +0+64 "Part ${I} of ${COUNT}" \
+		-annotate +0+84 "Part sha256sum" \
+		-annotate +0+104 "${PART_SHA}" \
+		-fill Red -pointsize 24 -font Courier-Bold -annotate +0+124 'PRIVATE PRIVATE PRIVATE PRIVATE PRIVATE' \
+		${K}_FINAL.png
+done
+
+exit
